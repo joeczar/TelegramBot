@@ -24,7 +24,17 @@ def msgRecievedBlinkt():
 
 def parseRGB(command):
     #check if command is number, if not exit
-    regexTest = re.search
+    if command[0].isdigit():
+        for i, rgb in enumerate(command):
+            val = int(rgb)
+            if val >= 0 and val <= 255:
+                command[i] = val
+                print('RGB: ', val)
+            else:
+                print('rgb int fail')
+        return command
+    else:
+        return
     #if number split to sest for RGB values, raise exception if number outside of RGB values
 
     # try:
@@ -55,7 +65,6 @@ def parseRGB(command):
 def blinktAll(command):
     clear()
     # Test to see of input is 3 values between 0 and 255
-    print(parseRGB(command))
     try:
         if command == "red":
             color = [255, 0, 0]
@@ -68,7 +77,7 @@ def blinktAll(command):
         elif command == "clear":
             color = [0, 0, 0]
         else:
-            parseRGB(command)
+            color = parseRGB(command)
             #print(color)
             
         if color is not None:
@@ -88,10 +97,16 @@ def handle(msg):
     chat_id = msg['chat']['id']
     command = msg['text']
     print('Got command: %s' % command)
-    # if command is True:
-    # msgRecievedBlinkt()
-    
-    bot.sendMessage(chat_id, "Blinkt " + command, blinktAll(command.lower()))
+    parseCommand = command.lower().split()
+    if parseCommand[0] == 'blinkt':
+        # pop blinkt from array to send only color commands
+        parseCommand.pop(0)
+        # check if length is 1 and send only value (not an array)
+        if len(parseCommand) < 2:
+            print(parseCommand[0])
+            bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand[0]))
+        else:
+            bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand))
 
 #get key
 key = open('/opt/teleBot')
