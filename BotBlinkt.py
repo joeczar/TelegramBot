@@ -91,7 +91,7 @@ def handle(msg):
     bot.sendMessage(chat_id, "Blinkt " + command, blinktAll(command))
 
 
-bot = telepot.Bot('995870193:AAGrKeiUWWXAvUWG5_3pUBk3zjmWmQqE9R0')
+bot = telepot.Bot('Your_key_here')
 bot.message_loop(handle)
 print('I am listening...')
 
