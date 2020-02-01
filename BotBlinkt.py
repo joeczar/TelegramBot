@@ -1,26 +1,29 @@
 import sys
 import time
 import telepot
-import re
 from blinkt import set_brightness, set_all, set_pixel, show, clear
 
 # clear the LEDs
-set_brightness(0.1)
+bright = 0.1
+set_brightness(bright)
 clear()
 show()
 
-# define message
-err = ''
+helpMessage = 'I can change colors with the commands, "red", "blue", "green" or "white". \n \nI also understand RGB values with "Blinkt R G B" where R, G and B are values from 0 to 255. \n \nYou can turn off the lights with "clear" and set the brightness with "bright" and a number between 0 and 100'
 
-def msgRecievedBlinkt():
-    pixel = 8
-    clear()
-    while pixel > 0:
-        set_pixel(pixel-1, 0, 0, 255)
+def setBrightness(value, bright):
+    # check that value is between 0 and 100
+    if value >= 0 and value <= 100:
+        # multiply value by 0.01
+        val = float(value) * 0.01
+        set_brightness(val)
         show()
-        time.sleep(0.5)
-        pixel - 1
-
+               
+    else:
+        brightMessage = "Please give a number betweeen 0 and 100. \n Example: Bright 50"
+        bot.sendMessage(chat_id, brightMessage)
+        time.sleep(1.5)
+        bot.sendMessage(chat_id, helpMessage)
 
 def parseRGB(command):
     #check if command is number, if not exit
@@ -29,89 +32,83 @@ def parseRGB(command):
             val = int(rgb)
             if val >= 0 and val <= 255:
                 command[i] = val
-                print('RGB: ', val)
             else:
-                print('rgb int fail')
+                bot.sendMessage(chat_id, helpMessage)
         return command
     else:
         return
-    #if number split to sest for RGB values, raise exception if number outside of RGB values
-
-    # try:
-    #     regexTest = re.search("\d{3} \d{3} \d{3}", command)
-    #     print('regexTest:', regexTest)
-    #     if regexTest is not None:
-    #         color = re.split("\s", command)
-    #         for i, c in enumerate(color):
-    #             # test that the value is a number from 0 to 255
-    #             try:
-    #                 c = re.search("\d|\d{2}|\d{3}", c)
-    #                 print('before if', c)
-    #                 if c is not None and len(c) <= 3:
-    #                     color[i] = c
-    #                     print(c)
-    #                 else:
-    #                     err = "Please give RGB values between 0 and 255 (0, 128, 128)."
-    #                     raise Exception(err)
-    #             except:
-    #                 return err
-    #         print(color)            
-    #         return color
-    # except:
-    #     print(err)
-
-
 
 def blinktAll(command):
     clear()
     # Test to see of input is 3 values between 0 and 255
-    try:
-        if command == "red":
-            color = [255, 0, 0]
-        elif command == "green":
-            color = [0, 255, 0]
-        elif command == "blue":
-            color = [0, 0, 255]
-        elif command == "white":
-            color = [255, 255, 255]    
-        elif command == "clear":
-            color = [0, 0, 0]
-        else:
-            color = parseRGB(command)
-            #print(color)
-            
-        if color is not None:
-            r = color[0]
-            g = color[1]
-            b = color[2]
-            clear()
-            set_all(r, g, b)
-            show()
-            
-
-    except:
-        print('ERROR:', err)
-
+    if command == "red":
+        color = [255, 0, 0]
+    elif command == "green":
+        color = [0, 255, 0]
+    elif command == "blue":
+        color = [0, 0, 255]
+    elif command == "white":
+        color = [255, 255, 255]    
+    elif command == "clear":
+        color = [0, 0, 0]
+    else:
+        color = parseRGB(command)
+        #print(color)
+        
+    if color is not None:
+        r = color[0]
+        g = color[1]
+        b = color[2]
+        clear()
+        set_all(r, g, b)
+        show()
+    else: 
+        bot.sendMessage(chat_id, helpMessage)
 
 def handle(msg):
     chat_id = msg['chat']['id']
     command = msg['text']
     print('Got command: %s' % command)
     parseCommand = command.lower().split()
-    if parseCommand[0] == 'blinkt':
+    # check for help
+    if parseCommand[0] == "help":
+        bot.sendMessage(chat_id, helpMessage)
+    # check for bright
+    if parseCommand[0] == "bright":
+        if len(parseCommand) > 1:
+            value = parseCommand[1]
+            bot.sendMessage(chat_id, "Setting brightness to " + str(value), setBrightness(int(value), bright)) 
+        else:
+            errMessage = "Hmmm... That didn't work"
+            print(value, parseCommand)
+            bot.sendMessage(chat_id, errMessage)
+            bot.sendMessage(chat_id, helpMessage)
+    # check for color & clear
+    elif parseCommand[0] in ('red', 'blue', 'green', 'white', 'clear'):
+        bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand[0]))
+    # check for blinkt 
+    elif parseCommand[0] == 'blinkt' and len(parseCommand) > 1:
         # pop blinkt from array to send only color commands
         parseCommand.pop(0)
         # check if length is 1 and send only value (not an array)
         if len(parseCommand) < 2:
-            print(parseCommand[0])
             bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand[0]))
         else:
             bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand))
+    else:
+        message ='I don\'t understand ' + command
+        
+        print(message)
+        bot.sendMessage(chat_id, message)
+        time.sleep(1)
+        bot.sendMessage(chat_id, helpMessage)
+
 
 #get key
 key = open('/opt/teleBot')
 
 bot = telepot.Bot(key.read().strip('\n'))
+key.close()
 bot.message_loop(handle)
 print('I am listening...')
 
