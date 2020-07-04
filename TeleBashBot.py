@@ -12,8 +12,9 @@ def teleBash(chat_id, command):
             stdout=subprocess.PIPE,
         )
     except subprocess.CalledProcessError as err:
-        print("Error:" + err)
-        bot.sendMessage(chat_id, err)
+        print("Error:", err)
+        if len(err) > 0:
+            bot.sendMessage(chat_id, err)
     else:
         returnMessage = 'returncode:', completed.returncode
         stdoutMessage = 'Have {} bytes in {} stdout:\n{}'.format(
@@ -26,31 +27,27 @@ def teleBash(chat_id, command):
         
         bot.sendMessage(chat_id, completed.stdout.decode('utf-8'))
 
-# def handle(msg):
-#     chat_id = msg['chat']['id']
-#     command = msg['text']
+def handle(msg):
+    chat_id = msg['chat']['id']
+    command = msg['text']
 
-#     print('runing command: %s' % command)
+    print('runing command: %s' % command)
+    bot.sendMessage(chat_id, teleBash(chat_id, command))
 
-#     if len(command) > 0:
-#        bot.sendMessage(chat_id, teleBash(chat_id, command))
+#get key
+key = open('/opt/teleBot')
+bot = telepot.Bot(key.read().strip('\n'))
+key.close()
+bot.message_loop(handle)
+print('I am listening...')
+
+while 1:
+    try:
+        time.sleep(10)
     
-
-
-# #get key
-# key = open('/opt/teleBot')
-# bot = telepot.Bot(key.read().strip('\n'))
-# key.close()
-# bot.message_loop(handle)
-# print('I am listening...')
-
-# while 1:
-#     try:
-#         time.sleep(10)
+    except KeyboardInterrupt:
+        print('\n Program interrupted')
+        exit()
     
-#     except KeyboardInterrupt:
-#         print('\n Program interrupted')
-#         exit()
-    
-#     except:
-#         print('Other error or exception occured!')
+    except:
+        print('Other error or exception occured!')

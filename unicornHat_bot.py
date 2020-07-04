@@ -1,11 +1,12 @@
 import sys
 import time
 import telepot
-from blinkt import set_brightness, set_all, set_pixel, show, clear
+from unicornhat import *
+set_layout(PHAT)
 
 # clear the LEDs
 bright = 0.1
-set_brightness(bright)
+brightness(bright)
 clear()
 show()
 
@@ -16,7 +17,7 @@ def setBrightness(value, bright):
     if value >= 0 and value <= 100:
         # multiply value by 0.01
         val = float(value) * 0.01
-        set_brightness(val)
+        brightness(val)
         show()
                
     else:
@@ -69,50 +70,40 @@ def handle(msg):
     chat_id = msg['chat']['id']
     command = msg['text']
     print('Got command: %s' % command)
-    bash = False
-    if (command.lower() == "bash"):
-        bash = True
-    if bash == True:
-        print("Bash!")
-        bot.sendMessage(chat_id, teleBash(chat_id, command))
-        # listen for exit command
-        listen = command.lower()
-        if (listen == "exit bash"):
-            bash = False
-    else:
-        parseCommand = command.lower().split()
-        # check for help
-        if parseCommand[0] == "help":
-            bot.sendMessage(chat_id, helpMessage)
-        # check for bright
-        if parseCommand[0] == "bright":
-            if len(parseCommand) > 1:
-                value = parseCommand[1]
-                bot.sendMessage(chat_id, "Setting brightness to " + str(value), setBrightness(int(value), bright)) 
-            else:
-                errMessage = "Hmmm... That didn't work"
-                print(value, parseCommand)
-                bot.sendMessage(chat_id, errMessage)
-                bot.sendMessage(chat_id, helpMessage)
-        # check for color & clear
-        elif parseCommand[0] in ('red', 'blue', 'green', 'white', 'clear'):
-            bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand[0]))
-        # check for blinkt 
-        elif parseCommand[0] == 'blinkt' and len(parseCommand) > 1:
-            # pop blinkt from array to send only color commands
-            parseCommand.pop(0)
-            # check if length is 1 and send only value (not an array)
-            if len(parseCommand) < 2:
-                bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand[0]))
-            else:
-                bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand))
+    
+    parseCommand = command.lower().split()
+    # check for help
+    if parseCommand[0] == "help":
+        bot.sendMessage(chat_id, helpMessage)
+    # check for bright
+    elif parseCommand[0] == "bright":
+        if len(parseCommand) > 1:
+            value = parseCommand[1]
+            bot.sendMessage(chat_id, "Setting brightness to " + str(value), setBrightness(int(value), bright)) 
         else:
-            message ='I don\'t understand ' + command
-            
-            print(message)
-            bot.sendMessage(chat_id, message)
-            time.sleep(1)
+            errMessage = "Hmmm... That didn't work"
+            print(value, parseCommand)
+            bot.sendMessage(chat_id, errMessage)
             bot.sendMessage(chat_id, helpMessage)
+    # check for color & clear
+    elif parseCommand[0] in ('red', 'blue', 'green', 'white', 'clear'):
+        bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand[0]))
+    # check for blinkt and RGB values
+    elif parseCommand[0] == 'blinkt' and len(parseCommand) > 1:
+        # pop blinkt from array to send only color commands
+        parseCommand.pop(0)
+        # check if length is 1 and send only value (not an array)
+        if len(parseCommand) < 2:
+            bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand[0]))
+        else:
+            bot.sendMessage(chat_id, "Got it, " + command, blinktAll(parseCommand))
+    else:
+        message ='I don\'t understand ' + command
+        
+        print(message)
+        bot.sendMessage(chat_id, message)
+        time.sleep(1)
+        bot.sendMessage(chat_id, helpMessage)
 
 
 #get key
