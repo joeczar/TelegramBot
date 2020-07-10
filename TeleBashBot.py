@@ -3,6 +3,7 @@ import time
 import telepot
 import subprocess
 
+
 def teleBash(chat_id, command):
     try:
         completed = subprocess.run(
@@ -18,14 +19,15 @@ def teleBash(chat_id, command):
     else:
         returnMessage = 'returncode:', completed.returncode
         stdoutMessage = 'Have {} bytes in {} stdout:\n{}'.format(
-            len(completed.stdout), 
-            'yer Ma', 
+            len(completed.stdout),
+            'yer Ma',
             completed.stdout.decode('utf-8')
-            )
+        )
         print("return Message", returnMessage)
         print("stdout message", stdoutMessage)
-        
+
         bot.sendMessage(chat_id, completed.stdout.decode('utf-8'))
+
 
 def handle(msg):
     chat_id = msg['chat']['id']
@@ -34,7 +36,8 @@ def handle(msg):
     print('runing command: %s' % command)
     bot.sendMessage(chat_id, teleBash(chat_id, command))
 
-#get key
+
+# get key
 key = open('/opt/teleBot')
 bot = telepot.Bot(key.read().strip('\n'))
 key.close()
@@ -44,10 +47,10 @@ print('I am listening...')
 while 1:
     try:
         time.sleep(10)
-    
+
     except KeyboardInterrupt:
         print('\n Program interrupted')
         exit()
-    
+
     except:
         print('Other error or exception occured!')
