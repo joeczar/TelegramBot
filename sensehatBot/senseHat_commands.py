@@ -5,7 +5,7 @@ def handleCommands(command):
     command = command.lower().split()
 
     if command[0] == 'weather':
-        return getWeather(command[1])
+        return getWeather(command)
     elif command[0] == 'message':
         return scrollIt(command)
     else:
