@@ -1,4 +1,5 @@
 from sense_hat import SenseHat
+from random import random
 
 sense = SenseHat()
 sense.clear()
@@ -39,3 +40,28 @@ def getWeather(command):
         return scrollIt(['message', switch.get(command[1], dontKnow)])
     else:
         return switch.get(command, 'I don\'t know %s' % command)
+
+
+def fiftyFifty():
+    fifty = random()
+    if (fifty > 0.4):
+        return True
+    else:
+        return False
+
+
+def noPhone():
+    phone = fiftyFifty()
+    if (phone):
+        sense.set_pixels(allPixels([0, 255, 0]))
+        return 'You can use your phone tonight'
+    else:
+        sense.set_pixels(allPixels([255, 0, 0]))
+        return 'No phones tonight!'
+
+
+def allPixels(color):
+    return [color] * 64
+
+
+print(allPixels([255, 0, 0]))

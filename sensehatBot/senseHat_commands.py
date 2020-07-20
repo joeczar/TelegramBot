@@ -1,4 +1,4 @@
-from TelegramSensehatFunctions import getWeather, scrollIt
+from TelegramSensehatFunctions import getWeather, scrollIt, noPhone
 
 
 def handleCommands(command):
@@ -8,6 +8,8 @@ def handleCommands(command):
         return getWeather(command)
     elif command[0] == 'message':
         return scrollIt(command)
+    elif command[0] == 'phone':
+        return noPhone()
     else:
         listToStr = ' '.join(map(str, command))
         return 'I didn\'t understand %s' % listToStr
